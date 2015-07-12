@@ -1,4 +1,4 @@
 CASLII/
 lex.yy.c
 a.out
-scanner
+pl0-scanner

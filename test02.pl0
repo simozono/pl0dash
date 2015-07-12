@@ -1,0 +1,1 @@
+var x;begin x:=5write x;writeln end.

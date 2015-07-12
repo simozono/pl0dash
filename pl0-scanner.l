@@ -3,7 +3,7 @@
   #include <string.h>
 %}
 %%
-[[:blank:]\n]+		{ printf("T_WHITESPC: \n", yytext); }
+[[:blank:]\n]+		{ printf("T_WHITESPC: \n"); }
 "const"			{ printf("T_CONST:   \"%s\"\n", yytext); }
 "var"			{ printf("T_VAR:     \"%s\"\n", yytext); }
 "function"		{ printf("T_FUNC:    \"%s\"\n", yytext); }

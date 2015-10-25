@@ -1,6 +1,11 @@
 %{
   #include <stdio.h>
   #include <string.h>
+  int yywrap(void);
+
+  int yywrap() {
+    return 1;
+  }
 %}
 %%
 [[:blank:]\n]+		{ printf("T_WHITESPC: \n"); }

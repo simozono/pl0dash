@@ -1,1 +1,1 @@
-var x;begin x:=5write x;writeln end.
+var x;begin x:=5;write x;writeln end.

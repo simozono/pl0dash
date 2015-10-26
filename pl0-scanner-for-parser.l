@@ -2,9 +2,11 @@
   #include <stdio.h>
   #include <string.h>
   #include "tokentable.h"
+  int line_number = 1;
 %}
 %%
-[[:blank:]\n]+		{}
+[[:blank:]]+		{}
+\n			{ line_number += 1; }
 "const"			{ return T_CONST;   }
 "var"			{ return T_VAR;     }
 "function"		{ return T_FUNC;    }

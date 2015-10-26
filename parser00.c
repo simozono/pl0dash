@@ -18,17 +18,25 @@ int nextToken; /* 次のトークンが入る変数 */
 
 int getToken(void) { /* トークンを取得する関数 */
   int token = yylex();
-  if (token == 0) { /* yylex()が0を返す時がEOFのようだ */
-    token = T_EOF;
-  }
+  if (token == 0) {token = T_EOF; } /* yylex()が0を返す時がEOFのようだ */
   return token;
 }
 
 int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    printf ("argument error\n");
+    exit(0);
+  }
+
   yyin = fopen(argv[1], "r");
+  if (yyin  == NULL) {
+    printf ("%s file not found.\n", argv[1]);
+    exit(0);
+  }
+
   nextToken = getToken();
 
-  /* 構文解析スタート */
+  /* 構文解析スタート S=E */
   parse_Expression();
   if (nextToken != T_EOF) {
     printf ("parse error EOF\n");
@@ -36,12 +44,12 @@ int main(int argc, char *argv[]) {
   }
 }
 
-void parse_Expression() {
+void parse_Expression() { /* E → TE' */
   parse_Term();
   parse_Expression_dash();
 }
 
-void parse_Expression_dash() {
+void parse_Expression_dash() { /* E' → +TE'|ε */
   if (nextToken == T_PLUS) {
     nextToken = getToken();
     parse_Term();
@@ -81,4 +89,3 @@ void parse_Factor() {
     exit(0);
   }
 }
-

@@ -51,9 +51,19 @@ void pl0parse_error(char *s) {
 }
 
 int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    printf ("argument error\n");
+    exit(0);
+  }
+  
   yyin = fopen(argv[1], "r");
+  if (yyin  == NULL) {
+    printf ("%s file not found.\n", argv[1]);
+    exit(0);
+  }
+  
   nextToken = getToken();
-
+  
   /* 構文解析スタート */
   parse_Program();
   if (nextToken != T_EOF) pl0parse_error("not EOF");

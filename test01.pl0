@@ -2,7 +2,7 @@ const n = 10;
 var counter, y;
 
 begin
-    counter := 1, y := n;
+    counter := 1; y := n;
     while counter <= y do
     begin
         write counter * counter;

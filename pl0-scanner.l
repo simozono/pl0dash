@@ -3,12 +3,10 @@
   #include <string.h>
   int yywrap(void);
 
-  int yywrap() {
-    return 1;
-  }
 %}
 %%
-[[:blank:]\n]+		{ printf("T_WHITESPC: \n"); }
+[[:blank:]]+		{ printf("T_WHITESPC: \n"); }
+\n			{ printf("T_LINE: \n"); }
 "const"			{ printf("T_CONST:   \"%s\"\n", yytext); }
 "var"			{ printf("T_VAR:     \"%s\"\n", yytext); }
 "function"		{ printf("T_FUNC:    \"%s\"\n", yytext); }

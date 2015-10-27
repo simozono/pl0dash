@@ -5,4 +5,5 @@ lex.yy.c
 a.out
 pl0-scanner
 parser00
+parser10
 pl0-scanner-for-parser.c

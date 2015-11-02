@@ -1,9 +1,17 @@
+/* PL/0' 用 LL(1)再帰下降型構文解析器 No.01      */
+/*              2015年後期 鹿児島高専            */
+/*              3年生 言語処理系 授業用          */
+/*   * 構文解析しか行っていない                  */
+/*   * ループを使わず再帰のみでやっている        */
+/*   * 変数のIDと関数のIDの分岐をしていないため  */
+/*     関数があると構文エラーとなる              */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "tokentable.h"
 
-extern FILE *yyin;
+extern FILE *yyin;      /* 読み込むソースファイル */
 extern int yylex();     /* lex の字句解析 */
 extern int line_number; /* 行番号 */
 extern char *yytext;    /* lex よりレクシムが入る */
@@ -11,6 +19,7 @@ extern char *yytext;    /* lex よりレクシムが入る */
 int getToken(void);
 void pl0parse_error(char *s);
 
+/* 非終端記号に対応した関数 */
 void parse_Program(void);
 void parse_Block(void);
 void parse_Decl(void);
@@ -45,8 +54,9 @@ int getToken(void) { /* トークンを取得する関数 */
   return token;
 }
 
-void pl0parse_error(char *s) {
-  printf("parse error near line %d(%s): %s\n", line_number, yytext, s);
+void pl0parse_error(char *error_message) { /* 構文エラーを出す関数 */
+  printf("parse error near line %d(%s): %s\n",
+         line_number, yytext, error_message);
   exit(0);
 }
 
@@ -55,16 +65,15 @@ int main(int argc, char *argv[]) {
     printf ("argument error\n");
     exit(0);
   }
-  
+
   yyin = fopen(argv[1], "r");
   if (yyin  == NULL) {
     printf ("%s file not found.\n", argv[1]);
     exit(0);
   }
-  
-  nextToken = getToken();
-  
+
   /* 構文解析スタート */
+  nextToken = getToken();
   parse_Program();
   if (nextToken != T_EOF) pl0parse_error("not EOF");
 }
@@ -99,9 +108,10 @@ void parse_Decl() {
 
 void parse_ConstDecl() {
   printf("Enter ConstDecl\n");
+  /* T_CONST では何もしない。次のトークンを読む */
   nextToken = getToken();
   parse_ConstIdList();
-  if (nextToken != T_SEMIC) pl0parse_error("not semic");
+  if (nextToken != T_SEMIC) pl0parse_error("not ;");
   nextToken = getToken();
 }
 
@@ -112,6 +122,7 @@ void parse_ConstIdList() {
   if (nextToken != T_EQ) pl0parse_error("not =");
   nextToken = getToken();
   if (nextToken != T_NUMBER) pl0parse_error("not number");
+  /* 定数名の登録および値の設定をここで行う */
   nextToken = getToken();
   parse_ConstIdList_dash();
 }
@@ -125,6 +136,7 @@ void parse_ConstIdList_dash() {
     if (nextToken != T_EQ) pl0parse_error("not =");
     nextToken = getToken();
     if (nextToken != T_NUMBER) pl0parse_error("not number");
+    /* 定数名の登録および値の設定をここで行う */
     nextToken = getToken();
     parse_ConstIdList_dash();
   }
@@ -132,6 +144,7 @@ void parse_ConstIdList_dash() {
 
 void parse_VarDecl() {
   printf("Enter VarDecl\n");
+  /* T_VAR では何もしない。次のトークンを読む */
   nextToken = getToken();
   parse_VarIdList();
   if (nextToken != T_SEMIC) pl0parse_error("not semic");
@@ -141,6 +154,7 @@ void parse_VarDecl() {
 void parse_VarIdList() {
   printf("Enter VarIdList\n");
   if (nextToken != T_ID) pl0parse_error("not ID");
+  /* 変数名の登録をここで行う */
   nextToken = getToken();
   parse_VarIdList_dash();
 }
@@ -150,6 +164,7 @@ void parse_VarIdList_dash() {
   if (nextToken == T_COMMA) {
     nextToken = getToken();
     if (nextToken != T_ID) pl0parse_error("not ID");
+    /* 変数名の登録をここで行う */
     nextToken = getToken();
     parse_VarIdList_dash();
   }
@@ -157,6 +172,7 @@ void parse_VarIdList_dash() {
 
 void parse_FuncDecl() {
   printf("Enter FuncDecl\n");
+  /* T_FUNC では何もしない。次のトークンを読む */
   nextToken = getToken();
   if (nextToken != T_ID) pl0parse_error("not ID");
   nextToken = getToken();
@@ -241,13 +257,14 @@ void parse_StatementList_dash() {
 
 void parse_Condition() {
   printf("Enter Condition\n");
-  int operator ;
+  int operator ; /* T_EQ や T_GT を一時格納 */
   if (nextToken == T_ODD) {
     nextToken = getToken();
     parse_Expression();
+    /* ここで T_ODDの処理 */
   } else {
     parse_Expression();
-    if (nextToken == T_EQ || nextToken == T_NOTEQ 
+    if (nextToken == T_EQ || nextToken == T_NOTEQ
         || nextToken == T_LT || nextToken == T_GT
         || nextToken == T_LE || nextToken == T_GE) {
       operator = nextToken;
@@ -283,12 +300,12 @@ void parse_Expression_dash() {
   if (nextToken == T_PLUS) {
     nextToken = getToken();
     parse_Term();
-    /* ここで   + をスタックにつむ */
+    /* ここで + の処理 */
     parse_Expression_dash();
   } else if (nextToken == T_MINUS) {
     nextToken = getToken();
     parse_Term();
-    /* ここで  - をスタックにつむ */
+    /* ここで - の処理 */
     parse_Expression_dash();
   } else {
   }
@@ -305,12 +322,12 @@ void parse_Term_dash() {
   if (nextToken == T_MULTI) {
     nextToken = getToken();
     parse_Factor();
-    /* ここで  * をスタックにつむ */
+    /* ここで * の処理 */
     parse_Term_dash();
   } else if (nextToken == T_DIVIDE) {
     nextToken = getToken();
     parse_Factor();
-    /* ここで  * をスタックにつむ */
+    /* ここで / の処理 */
     parse_Term_dash();
   } else {
   }
@@ -322,6 +339,7 @@ void parse_Factor() {
     /* 右辺値変数 or 関数呼び出しの判断をしなければならない */
     nextToken = getToken();
   } else if (nextToken == T_NUMBER) { 
+    /* ここで数字の処理 */
     nextToken = getToken();
   } else if (nextToken == T_LPAR) {
     nextToken = getToken();
@@ -337,7 +355,7 @@ void parse_FuncArgList() {
   printf("Enter FuncArgList\n");
   if (nextToken == T_PLUS || nextToken == T_MINUS
       || nextToken == T_ID || nextToken == T_NUMBER
-      || nextToken == T_LPAR) { /* First(<Expression>) */
+      || nextToken == T_LPAR) { /* First(<Expression>)に含まれるもの */
     parse_Expression();
     parse_FuncArgList_dash();
   } else {

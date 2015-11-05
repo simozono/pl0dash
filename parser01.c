@@ -95,7 +95,7 @@ void parse_Factor() { /* F → (E)|T_NUMBER */
     nextToken = getToken();
   } else if (nextToken == T_NUMBER) {
     /* T_NUMBER の処理はじまり */
-    printf("LOAD A %s\n", yytext);
+    printf("LOAD A, %s\n", yytext);
     printf("PUSH A\n");
     /* T_NUMBER の処理おわり */
     nextToken = getToken();

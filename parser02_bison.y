@@ -11,6 +11,8 @@
 
 %token T_WHITESPC T_ERROR T_EOF
 
+%start expression
+
 %%
 expression:	expression T_PLUS term
 			{ printf("POP B\n");

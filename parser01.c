@@ -25,19 +25,19 @@ int getToken(void) {
 
 void parse_error(char *error_message) {
   printf ("parse error: %s\n", error_message);
-  exit(0);
+  exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
     printf ("argument error\n");
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   yyin = fopen(argv[1], "r"); /* ファイルを開く処理 */
   if (yyin  == NULL) {
     printf ("%s file not found.\n", argv[1]);
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   /* 最初に1トークン読み込んでおく */

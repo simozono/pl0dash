@@ -6,7 +6,8 @@ all: pl0-scanner parser00 parser01 parser10 parser02
 clean:
 	rm -f parser00 parser00.o
 	rm -f parser01 parser01.o
-	rm -f parser02 parser02_bison.tab.c pl0-scanner-for-bison.o
+	rm -f parser02 parser02.o
+	rm -f parser02_bison.tab.c parser02_bison.tab.o pl0-scanner-for-bison.o
 	rm -f tokentable_bison.h
 	rm -f parser10 parser10.o
 	rm -f pl0-scanner-for-parser.o

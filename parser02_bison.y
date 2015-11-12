@@ -1,6 +1,9 @@
 %{
   #include <stdio.h>
+  #include <stdlib.h>
   extern char *yytext;
+  extern int yylex(void);
+  int yyerror(char *s);
 %}
 
 %token T_ID T_NUMBER T_COLEQ T_EQ T_NOTEQ T_LT T_GT T_LE T_GE
@@ -41,5 +44,5 @@ factor:		T_LPAR expression T_RPAR
 %%
 int yyerror(char *error_message) {
   printf("ERROR %s\n", error_message);
-  return 0;
+  return(EXIT_FAILURE); /* 終了ステータスと同じものを返しておく */
 }

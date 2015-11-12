@@ -18,7 +18,8 @@ parser00: parser00.o pl0-scanner-for-parser.o
 parser00.o: parser00.c tokentable.h
 parser01: parser01.o pl0-scanner-for-parser.o
 parser01.o: parser01.c tokentable.h
-parser02: parser02.c parser02_bison.tab.c tokentable_bison.h pl0-scanner-for-bison.o
+parser02.o: parser02.c tokentable_bison.h
+parser02: parser02.o parser02_bison.tab.c pl0-scanner-for-bison.o
 pl0-scanner-for-parser.o: pl0-scanner-for-parser.l tokentable.h
 pl0-scanner-for-bison.o: pl0-scanner-for-bison.l
 pl0-scanner.o: pl0-scanner.l

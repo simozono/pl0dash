@@ -1,3 +1,9 @@
+/* 簡易演算文法用 LL(1)再帰下降型構文解析器 No.01
+ *              2015年後期 鹿児島高専
+ *              3年生 言語処理系 授業用
+ *     * 構文解析しか行っていない
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +25,7 @@ int nextToken; /* 次のトークンが入る変数 */
 
 int getToken(void) {
   int token = yylex();
-  if (token == 0) {token = T_EOF; } /* yylex()が0を返す時がEOFのようだ */
+  if (token == 0) token = T_EOF; /* yylex()が0を返す時がEOFのようだ */
   return token;
 }
 

@@ -4,5 +4,10 @@ CASLII/
 pl0-scanner
 parser00
 parser01
+parser02
 parser10
+parser12
+parser02_bison.tab.c
+parser12_bison.tab.c
+tokentable_bison.h
 pl0-scanner-for-parser.c

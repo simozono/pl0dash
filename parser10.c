@@ -57,19 +57,19 @@ int getToken(void) { /* トークンを取得する関数 */
 void pl0parse_error(char *error_message) { /* 構文エラーを出す関数 */
   printf("parse error near line %d(%s): %s\n",
          line_number, yytext, error_message);
-  exit(0);
+  exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
     printf ("argument error\n");
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   yyin = fopen(argv[1], "r");
   if (yyin  == NULL) {
     printf ("%s file not found.\n", argv[1]);
-    exit(0);
+    exit(EXIT_FAILURE);
   }
 
   /* 構文解析スタート */

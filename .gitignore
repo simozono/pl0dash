@@ -6,6 +6,7 @@ parser00
 parser01
 parser02
 parser10
+parser11
 parser12
 parser02_bison.tab.c
 parser12_bison.tab.c

@@ -2,7 +2,7 @@ CC = gcc
 LEX = flex
 LDLIBS = -ll
 YACC = bison
-all: pl0-scanner parser00 parser01 parser10 parser02 parser12
+all: pl0-scanner parser00 parser01 parser10 parser02 parser11 parser12
 clean:
 	rm -f parser00 parser00.o
 	rm -f parser01 parser01.o
@@ -11,11 +11,14 @@ clean:
 	rm -f parser12 parser12_bison.tab.c
 	rm -f tokentable_bison.h
 	rm -f parser10 parser10.o
+	rm -f parser11 parser11.o
 	rm -f pl0-scanner-for-parser.o
 	rm -f pl0-scanner.o
 	rm -f pl0-scanner
 parser10: parser10.o pl0-scanner-for-parser.o
 parser10.o: parser10.c tokentable.h
+parser11: parser11.o pl0-scanner-for-parser.o
+parser11.o: parser11.c tokentable.h
 parser00: parser00.o pl0-scanner-for-parser.o
 parser00.o: parser00.c tokentable.h
 parser01: parser01.o pl0-scanner-for-parser.o

@@ -18,6 +18,9 @@ extern int yylex();     /* lex の字句解析 */
 extern int line_number; /* 行番号 */
 extern char *yytext;    /* lex よりレクシムが入る */
 
+int checkTable(char *funcName);
+int addTable(char *funcName);
+
 int getToken(void);
 void pl0parse_error(char *s);
 
@@ -48,29 +51,28 @@ void parse_FuncArgList_dash(void);
 
 int nextToken; /* 次のトークンが入る変数 */
 
-const int tableMax = 128;
-char func_table[tableMax][64];
+const int tableMax = 256;
+char funcTable[tableMax][64];
 int  tableIndex = 0;
-int checkTable(char *funcName)
-{
-    /* 指定した名前の関数があるか調べる */
-    int flag = 0;
-    for (int i = 0; i < tableIndex; i++)
-    {
-        if (strcmp(funcName, func_table[i]) == 0) flag = 1;
-    }
-    return flag; /* 同じ名前の関数があったら1を返す  */
-}
-int addTable(char *funcName)
-{
-    /* 関数名が被らないか調べる */
-    if (checkTable(funcName)) return -1; /* 関数名がかぶったら-1を返す */
-    if (tableIndex == tableMax) return -1; /* これ以上関数テーブルに追加できない */
 
-   /* 関数をテーブルに追加 */
-   strcpy(func_table[tableIndex], funcName);
-   tableIndex++;
-   return 0;
+int checkTable(char *funcName) {
+  /* 指定した名前の関数があるか調べる */
+  int flag = 0;
+  for (int i = 0; i < tableIndex; i++) {
+    if (strcmp(funcName, funcTable[i]) == 0) flag = 1;
+  }
+  return flag; /* 同じ名前の関数があったら1を返す  */
+}
+
+int addTable(char *funcName) {
+  /* 関数名が被らないか調べる */
+  if (checkTable(funcName)) return -1; /* 関数名がかぶったら-1を返す */
+  if (tableIndex == tableMax) return -1; /* これ以上関数テーブルに追加できない */
+
+  /* 関数をテーブルに追加 */
+  strcpy(funcTable[tableIndex], funcName);
+  tableIndex++;
+  return 0;
 }
 
 int getToken(void) { /* トークンを取得する関数 */

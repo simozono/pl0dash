@@ -1,10 +1,9 @@
-/* PL/0' 用 LL(1)再帰下降型構文解析器 No.01
+/* PL/0' 用 LL(1)再帰下降型構文解析器 No.02
  *              2015年後期 鹿児島高専
  *              3年生 言語処理系 授業用
  *   * 構文解析しか行っていない
  *   * ループを使わず再帰のみでやっている
- *   * 変数のIDと関数のIDの分岐をしていないため
- *     関数があると構文エラーとなる
+ *   * 変数のIDと関数のIDの分岐をしているバージョン
  *
  */
 
@@ -51,6 +50,10 @@ void parse_FuncArgList_dash(void);
 
 int nextToken; /* 次のトークンが入る変数 */
 
+/*
+ *  関数名テーブルの実装
+ *
+ */
 const int tableMax = 256;
 char funcTable[tableMax][64];
 int  tableIndex = 0;
@@ -67,13 +70,14 @@ int checkTable(char *funcName) {
 int addTable(char *funcName) {
   /* 関数名が被らないか調べる */
   if (checkTable(funcName)) return -1; /* 関数名がかぶったら-1を返す */
-  if (tableIndex == tableMax) return -1; /* これ以上関数テーブルに追加できない */
+  if (tableIndex == tableMax) return -1; /* これ以上関数名テーブルに追加できない */
 
-  /* 関数をテーブルに追加 */
+  /* 関数名をテーブルに追加 */
   strcpy(funcTable[tableIndex], funcName);
   tableIndex++;
   return 0;
 }
+/* 関数名テーブル関係 ここまで */
 
 int getToken(void) { /* トークンを取得する関数 */
   int token = yylex();
@@ -204,9 +208,14 @@ void parse_FuncDecl() {
   /* T_FUNC では何もしない。次のトークンを読む */
   nextToken = getToken();
   if (nextToken != T_ID) pl0parse_error("not ID");
-  //puts(yytext);
-  if (addTable(yytext) == -1) pl0parse_error("defined ID");
-  else printf("Add Table");
+
+  /* 関数名の関数名テーブルへの追加 */
+  if (addTable(yytext) == -1) {
+    pl0parse_error("already defined ID");
+  } else {
+    printf("Add FuncNameTable\n");
+  }
+  
   nextToken = getToken();
   if (nextToken != T_LPAR) pl0parse_error("not (");
   nextToken = getToken();
@@ -369,8 +378,8 @@ void parse_Factor() {
   printf("Enter Factor\n");
   if (nextToken == T_ID) { 
     /* 右辺値変数 or 関数呼び出しの判断をしなければならない */
-    if (checkTable(yytext)) {  /* 関数テーブルにあった場合の処理 */ 
-      puts("Enter Func");
+    if (checkTable(yytext)) {  /* 関数名テーブルにあった場合の処理 */ 
+      printf("Enter Func\n");
       nextToken = getToken();
       if (nextToken != T_LPAR) pl0parse_error("not (");
       else {
@@ -378,6 +387,7 @@ void parse_Factor() {
         parse_FuncArgList();
         if (nextToken != T_RPAR) pl0parse_error("not )");
       }
+    } else { /* 関数名テーブルになかったら変数/定数のはず */
     }
     nextToken = getToken();
   } else if (nextToken == T_NUMBER) { 

@@ -1,0 +1,17 @@
+function square(x,y)
+begin
+    return x * y * z
+end;
+
+const n = 10, x = 1;
+var a;
+
+begin
+    a := n; b := a;
+    while x <= a do
+    begin
+        write square(x);
+        writeln;
+        x := x + 1;
+    end;
+end.

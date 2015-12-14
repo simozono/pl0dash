@@ -54,14 +54,14 @@ int nextToken; /* 次のトークンが入る変数 */
  *  関数名テーブルの実装
  *
  */
-const int tableMax = 256;
-char funcTable[tableMax][64];
+#define  TABLEMAX  256
+char funcTable[TABLEMAX][64];
 int  tableIndex = 0;
 
 int checkTable(char *funcName) {
   /* 指定した名前の関数があるか調べる */
-  int flag = 0;
-  for (int i = 0; i < tableIndex; i++) {
+  int flag = 0, i;
+  for (i = 0; i < tableIndex; i++) {
     if (strcmp(funcName, funcTable[i]) == 0) flag = 1;
   }
   return flag; /* 同じ名前の関数があったら1を返す  */
@@ -70,7 +70,7 @@ int checkTable(char *funcName) {
 int addTable(char *funcName) {
   /* 関数名が被らないか調べる */
   if (checkTable(funcName)) return -1; /* 関数名がかぶったら-1を返す */
-  if (tableIndex == tableMax) return -1; /* これ以上関数名テーブルに追加できない */
+  if (tableIndex == TABLEMAX) return -1; /* これ以上関数名テーブルに追加できない */
 
   /* 関数名をテーブルに追加 */
   strcpy(funcTable[tableIndex], funcName);
@@ -240,6 +240,7 @@ void parse_FuncDeclIdList_dash() {
   if (nextToken == T_COMMA) {
     nextToken = getToken();
     if (nextToken != T_ID) pl0parse_error("not id)");
+    nextToken = getToken();
     parse_FuncDeclIdList_dash();
   }
 }

@@ -51,7 +51,7 @@ funcDecl:       T_FUNC T_ID T_LPAR funcDeclIdList T_RPAR block T_SEMIC
 funcDeclIdList: /* ε */
         |       parameterList
                 ;
-parameterList:  parameterList T_SEMIC T_ID
+parameterList:  parameterList T_COMMA T_ID
         |       T_ID
                 ;
 

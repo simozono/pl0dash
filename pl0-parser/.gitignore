@@ -1,0 +1,7 @@
+pl0-ll-parser01
+pl0-ll-parser02
+pl0-lr-parser01
+pl0-lr-parser01_bison.tab.c
+pl0-scanner-ll.c
+pl0-scanner-lr.c
+tokentable_bison.h

@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tokentable.h"
+#include "../lexer/tokentable.h"
 
 extern FILE *yyin;      /* 読み込むソースファイル */
 extern int yylex();     /* lex の字句解析 */

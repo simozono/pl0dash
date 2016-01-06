@@ -1,13 +1,13 @@
-/* 簡易演算文法用 LL(1)再帰下降型構文解析器 No.01
+/* 簡易演算文法用 LL(1)再帰下降型構文解析器 No.02
  *              2015年後期 鹿児島高専
  *              3年生 言語処理系 授業用
- *     * 構文解析しか行っていない
+ *     * 構文解析と擬似アセンブリコードも出力
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tokentable.h"
+#include "../lexer/tokentable.h"
 
 extern FILE *yyin;
 extern int yylex();
@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
   /* 構文解析スタート S=E */
   parse_Expression();
   if (nextToken != T_EOF) parse_error("not EOF");
+  printf("END\n");
 }
 
 void parse_Expression() { /* E → TE' */
@@ -63,6 +64,12 @@ void parse_Expression_dash() { /* E' → +TE'|ε */
   if (nextToken == T_PLUS) {
     nextToken = getToken();
     parse_Term();
+    /* T_PLUS の処理はじまり */
+    printf("POP B\n");
+    printf("POP A\n");
+    printf("PLUS\n");
+    printf("PUSH C\n");
+    /* T_PLUS の処理おわり */
     parse_Expression_dash();
   }
 }
@@ -76,6 +83,12 @@ void parse_Term_dash() { /* T' → *FT'|ε */
   if (nextToken == T_MULTI) {
     nextToken = getToken();
     parse_Factor();
+    /* T_MULTI の処理はじまり */
+    printf("POP B\n");
+    printf("POP A\n");
+    printf("MULTI\n");
+    printf("PUSH C\n");
+    /* T_MULTI の処理おわり */
     parse_Term_dash();
   }
 }
@@ -87,6 +100,10 @@ void parse_Factor() { /* F → (E)|T_NUMBER */
     if (nextToken != T_RPAR) parse_error("not )");
     nextToken = getToken();
   } else if (nextToken == T_NUMBER) {
+    /* T_NUMBER の処理はじまり */
+    printf("LOAD A, %s\n", yytext);
+    printf("PUSH A\n");
+    /* T_NUMBER の処理おわり */
     nextToken = getToken();
   } else {
     parse_error("not number and not (");

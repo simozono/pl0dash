@@ -8,6 +8,7 @@
 #include "misc.h"
 
 #define MAX_TABLE_LEN 200 /* 記号表の大きさ */
+#define MAX_STACK_LEN  30 /* ptrスタックの大きさ(ブロックレベル) */
 
 struct table_entry {
   Type_Id type;
@@ -23,11 +24,15 @@ struct table_entry {
   } u;
 };
 
-static struct table_entry symbol_table[MAX_TABLE_LEN];
+static struct table_entry symbol_table[MAX_TABLE_LEN]; /* 記号表 */
 static int table_ptr = 0 ; /* 記号表の現在位置を示すポインタ */
-                           /* symbol_table[0]は番兵で使用    */
-static int cur_func_tptr;  /* 現在登録処理している関数の記号表上の位置を記憶 */
-                           /* 仮引数の処理で必要  */
+                           /* symbol_table[0]は番兵で使用   */
+static int cur_func_tptr;  /* 現在登録処理している関数の記号 */
+			   /* 表上の位置を記憶(仮引数の処理) */
+static int ptr_stack[MAX_STACK_LEN]; /* 「意味解析(記号表)」の回で    */
+                                     /* 説明した元の ptr を覚えておく */
+                                     /* スタック                     */
+static int stack_ptr = 0; /* 上記スタック用 */
 
 int register_const_in_tbl(char *id, int value, int line_no);
 int register_var_in_tbl(char *id, int line_no);
@@ -41,6 +46,8 @@ Type_Id get_symbol_type(int ptr);
 char *get_symbol_name(int ptr);
 int get_symbol_def_line_no(int ptr);
 int get_func_args(int ptr);
+void blk_level_up();
+void blk_level_down();
 
 
 /* 名前の二重登録のチェック(登録されていたら1) */
@@ -101,6 +108,24 @@ int register_param_in_tbl(char *id, int line_no) {
   symbol_table[cur_func_tptr].u.f.n_params++; /* 該当関数の仮引数の個数繰上 */
   return table_ptr;
 }
+
+/* ブロックレベル処理関係 */
+/* ブロックレベルが一つ上がる */
+void blk_level_up() {
+  stack_ptr++;
+  if (stack_ptr == MAX_STACK_LEN) pl0_error("内部", "", 0,
+			       "blk_level_upの最大になった。");
+  ptr_stack[stack_ptr] = table_ptr;
+}
+
+/* ブロックレベルが一つ下がる */
+void blk_level_down() {
+  if (stack_ptr < 1) pl0_error("内部", "", 0,
+			       "blk_level_downがおかしい。");
+  table_ptr = ptr_stack[stack_ptr];
+  stack_ptr--;
+}
+
 
 /* 仮引数宣言部の最後で呼ばれる */
 int end_param() {

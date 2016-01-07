@@ -189,6 +189,7 @@ void parse_FuncDecl() {
   nextToken = getToken();
   if (nextToken != T_LPAR) pl0_error("構文", yytext, line_number,
 				     "(がない。");
+  blk_level_up(); /* ブロックレベルを上げる */
   nextToken = getToken();
   parse_FuncDeclIdList();
   if (nextToken != T_RPAR) pl0_error("構文", yytext, line_number,
@@ -197,6 +198,7 @@ void parse_FuncDecl() {
   parse_Block();
   if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_number,
 				      ";がない。");
+  blk_level_down(); /* ブロックレベルを下げる */
   nextToken = getToken();
 }
 

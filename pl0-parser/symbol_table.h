@@ -17,3 +17,5 @@ extern Type_Id get_symbol_type(int ptr);
 extern char *get_symbol_name(int ptr);
 extern int get_func_args(int ptr);
 extern int get_symbol_def_line_no(int ptr);
+extern void blk_level_up();
+extern void blk_level_down();

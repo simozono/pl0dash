@@ -5,10 +5,12 @@ YACC = bison
 
 EXT_TOKENTABLE = ../lexer/tokentable.h
 
-all: pl0-ll-parser01 pl0-ll-parser02 pl0-lr-parser01
+all: pl0-ll-parser01 pl0-ll-parser02 pl0-ll-parser03 pl0-lr-parser01
 clean:
 	rm -f pl0-ll-parser01 pl0-ll-parser01.o
 	rm -f pl0-ll-parser02 pl0-ll-parser02.o
+	rm -f pl0-ll-parser03 pl0-ll-parser03.o misc.o
+	rm -f symbol_table.o
 	rm -f pl0-lr-parser01
 	rm -f pl0-lr-parser_main.o
 	rm -f pl0-lr-parser01_bison.tab.c
@@ -22,6 +24,11 @@ pl0-ll-parser01.o: pl0-ll-parser01.c $(EXT_TOKENTABLE)
 
 pl0-ll-parser02: pl0-ll-parser02.o pl0-scanner-ll.o
 pl0-ll-parser02.o: pl0-ll-parser02.c $(EXT_TOKENTABLE)
+
+pl0-ll-parser03: pl0-ll-parser03.o symbol_table.o pl0-scanner-ll.o misc.o
+pl0-ll-parser03.o: pl0-ll-parser03.c $(EXT_TOKENTABLE) symbol_table.h
+symbol_table.o: symbol_table.c symbol_table.h
+misc.o: misc.c misc.h
 
 pl0-lr-parser01: pl0-lr-parser_main.o pl0-lr-parser01_bison.tab.c pl0-scanner-lr.o
 	        $(CC) $(CFLAGS) $^  $(LDLIBS) -o $@

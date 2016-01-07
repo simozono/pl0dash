@@ -1,5 +1,6 @@
 %{
   #include <stdio.h>
+  #include <stdlib.h>
   #include <string.h>
   #ifdef YACC
   #include "tokentable_bison.h"
@@ -7,6 +8,7 @@
   #include "../lexer/tokentable.h"
   #endif
   int line_number = 1;
+  int t_num_value;
 %}
 %%
 [[:blank:]]+		{}
@@ -41,6 +43,7 @@
 "*"			{ return T_MULTI;   }
 "/"			{ return T_DIVIDE;  }
 [[:alpha:]][[:alpha:][:digit:]_]*    { return T_ID; }
-[[:digit:]]+|"0x"[0-9a-h]+    { return T_NUMBER;   }
+[[:digit:]]+|"0x"[0-9a-h]+    { t_num_value = (int)strtol(yytext, NULL, 0);
+                                return T_NUMBER;   }
 .                             { return T_ERROR; }
 %%

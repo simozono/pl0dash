@@ -1,10 +1,14 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #define MAX_ID_NAME 31  /* ID の最大値 */
 
-typedef enum {
-  const_id,
-  var_id,
-  func_id,
-  param_id
+typedef enum { /* 記号表に登録する名前の種別 */
+  const_id,  /* 定数 */
+  var_id,    /* 変数 */
+  func_id,   /* 関数 */
+  param_id   /* 関数の仮引数 */
 } Type_Id;
 
 extern int register_const_in_tbl(char *id, int value, int line_no);

@@ -1,26 +1,20 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#ifndef TBL
-#define TBL
 #include "symbol_table.h"
-#endif
 #include "misc.h"
 
 #define MAX_TABLE_LEN 200 /* 記号表の大きさ */
 #define MAX_STACK_LEN  30 /* ptrスタックの大きさ(ブロックレベル) */
 
-struct table_entry {
-  Type_Id type;
-  char name[MAX_ID_NAME];
+struct table_entry { /* 記号表に登録する要素 */
+  char name[MAX_ID_NAME];  /* 名前 */
+  Type_Id type;            /* 種別 */
   int line_no; /* 宣言されたソースコード上の行数 */
   union {
     int value; /* 定数の場合、値 */
     struct {
       int n_params; /* 関数の場合、仮引数の個数 */
-      int address;  /* 関数の場合、先頭アドレス */
+      /* int address; 関数の場合、先頭アドレス */
     } f;
-    int address; /* 定数、変数、仮引数の場合、アドレス */
+    /* int address; 定数、変数、仮引数の場合、アドレス */
   } u;
 };
 

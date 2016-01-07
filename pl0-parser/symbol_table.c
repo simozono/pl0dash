@@ -136,8 +136,8 @@ char *get_symbol_name(int ptr) {
 /* 記号表 ptr 位置の関数の引数の個数を返す */
 int get_func_args(int ptr) {
   if (symbol_table[ptr].type != func_id) {
-    pl0_error("内部", symbol_table[ptr].name, 0, "get_func_argがおかしい");
-  } else {
-    return symbol_table[ptr].u.f.n_params;
+    pl0_error("内部", symbol_table[ptr].name, 0,
+	      "get_func_argがおかしい");
   }
+  return symbol_table[ptr].u.f.n_params;
 }

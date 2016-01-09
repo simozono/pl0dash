@@ -4,110 +4,170 @@
 #include "codegen.h"
 #include "symbol_table.h"
 
-int gen_code_no_arg(Operator o); /* 引数なし */
-int gen_code_arg_ST(Operator o, int ptr); /* 引数として名前表上の番号 */
-int gen_code_arg_v(Operator o, int value); /* 引数として値そのもの */
-int gen_code_arg_v_ST(Operator o, int value, int ptr); /* 引数として値そのもの */
+#define MAX_OP_LINE  20
+#define MAX_CODE    800
 
-int gen_code_no_arg(Operator o) {
+int code_ptr = 0;
+
+typedef struct {
+  char op_line[MAX_OP_LINE];
+  int address; /* JMP/JPC 用 */
+} Asm_Code;
+
+static Asm_Code code[MAX_CODE];
+
+int gencode_no_arg(Opr o); /* 引数なし */
+int gencode_arg_ST(Opr o, int ptr); /* 引数として記号表番号 */
+int gencode_arg_v(Opr o, int value); /* 引数として値そのもの */
+int gencode_arg_v_ST(Opr o, int value, int ptr); /* 引数として値と記号表番号 */
+void list_code();
+void backpatch(int code_lineno);
+  
+/* 以下は本ファイルでのみ使用 */
+int add_code(char *opline);
+int add_code_val(char *fmt, int value);
+int add_code_addr(char *opr, int address);
+
+void list_code(){ /* リストを出力 */
+  int i = 1;
+  while (i <= code_ptr) {
+    if (code[i].address < 0) 
+      fprintf(stdout,"%4d %s\n", i, code[i].op_line);
+    else
+      fprintf(stdout,"%4d %s%d\n", i, code[i].op_line,code[i].address);
+    i++;
+  }
+}
+
+int gencode_no_arg(Opr o) {
+  int cpt;
   if (o == wrl) {
-    printf("PRINTLN\n");
-    return 0;
+    return add_code("PRINTLN");
   }
 
   if (o == end) {
-    printf("END\n");
-    return 0;
+    return add_code("END");
   }
 
   if (o == wrt) {
-    printf("POP A\n");
-    printf("PRINT A\n");
-    return 0;
+    add_code("POP A");
+    return add_code("PRINT A");
   }
 
   if (o == odd) {
-    printf("POP A\n");
+    add_code("POP A");
   } else { /* スタックから2つPOPするもの */
-    printf("POP B\n");
-    printf("POP A\n");
+    add_code("POP B");
+    add_code("POP A");
   }
   switch (o) {
   case pls:
-    printf("PLUS\n");
+    add_code("PLUS");
     break;
   case min:
-    printf("MINUS\n");
+    add_code("MINUS");
     break;
   case mul:
-    printf("MULTI\n");
+    add_code("MULTI");
     break;
   case divi:
-    printf("DIV\n");
+    add_code("DIV");
     break;
   case odd:
-    printf("CMPODD\n");
+    add_code("CMPODD");
     break;
   case eq:
-    printf("CMPEQ\n");
+    add_code("CMPEQ");
     break;
   case neq:
-    printf("CMPNOTEQ\n");
+    add_code("CMPNOTEQ");
     break;
   case lt:
-    printf("CMPLT\n");
+    add_code("CMPLT");
     break;
   case gt:
-    printf("CMPGT\n");
+    add_code("CMPGT");
     break;
   case le:
-    printf("CMPLE\n");
+    add_code("CMPLE");
     break;
   case ge:
-    printf("CMPGE\n");
+    add_code("CMPGE");
     break;
   default:
     break;
   }
-  printf("PUSH C\n");
-  return 0;
+  return add_code("PUSH C");
 }
 
-int gen_code_arg_V_ST(Operator o, int value, int ptr) {
+int gencode_arg_V_ST(Opr o, int value, int ptr) {
+  int cpt = 0;
   switch(o) {
   case str:
-    printf("LOAD A,%d\n", value);
-    printf("STORE A,#(%d)\n", get_symbol_address(ptr));
+    cpt = add_code_val("LOAD A,%d", value);
+    cpt = add_code_val("STORE A,#(%d)", get_symbol_address(ptr));
+    break;
   default:
     break;
   }
-  return 0;
+  return cpt;
 }
 
-int gen_code_arg_V(Operator o, int value) {
+int gencode_arg_V(Opr o, int value) {
+  int cpt = 0;
   switch(o) {
   case lod:
-    printf("LOAD A,%d\n", value);
-    printf("PUSH A\n");
+    cpt = add_code_val("LOAD A,%d", value);
+    cpt = add_code("PUSH A");
+    break;
+  case jpc:
+    cpt = add_code_addr("JPC ", value);
+    break;
   default:
     break;
   }
-  return 0;
+  return cpt;
 }
 
 
-int gen_code_arg_ST(Operator o, int ptr) {
+int gencode_arg_ST(Opr o, int ptr) {
+  int cpt = 0;
   switch(o) {
   case str:
-    printf("POP A\n");
-    printf("STORE A,#(%d)\n", get_symbol_address(ptr));
+    cpt = add_code("POP A");
+    cpt = add_code_val("STORE A,#(%d)", get_symbol_address(ptr));
     break;
   case lod:
-    printf("LOAD A,#(%d)\n", get_symbol_address(ptr));
-    printf("PUSH A\n");
+    cpt = add_code_val("LOAD A,#(%d)", get_symbol_address(ptr));
+    cpt = add_code("PUSH A");
     break;
   default:
     break;
   }
-  return 0;
+  return cpt;
+}
+
+int add_code(char *opline) {
+  code_ptr++;
+  strcpy(code[code_ptr].op_line, opline);
+  code[code_ptr].address = -1; /* address を使用しない */
+  return code_ptr;
+}
+
+int add_code_val(char *fmt, int value) {
+  code_ptr++;
+  sprintf(code[code_ptr].op_line, fmt, value);
+  code[code_ptr].address = -1; /* address を使用しない */
+  return code_ptr;
+}
+
+int add_code_addr(char *opr, int address) {
+  code_ptr++;
+  strcpy(code[code_ptr].op_line, opr);
+  code[code_ptr].address = address; 
+  return code_ptr;
+}
+
+void backpatch(int code_lineno) { /* 現在のコード行の次の行を入れる */
+  code[code_lineno].address = code_ptr+1;
 }

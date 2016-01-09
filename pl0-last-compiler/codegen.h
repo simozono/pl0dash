@@ -8,9 +8,12 @@ typedef enum {
   wrt, wrl, /* 表示関係 */
   jmp, jpc,  /* ジャンプ */
   end /* 終了 */
-} Operator;
+} Opr;
 
-extern int gen_code_no_arg(Operator o);
-extern int gen_code_arg_ST(Operator o, int ptr); /* 引数として名前表上の番号 */
-extern int gen_code_arg_V(Operator o, int value); /* 引数として値そのもの */
-extern int gen_code_arg_V_ST(Operator o, int value, int ptr); 
+extern int gencode_no_arg(Opr o);
+extern int gencode_arg_ST(Opr o, int ptr); /* 引数として名前表上の番号 */
+extern int gencode_arg_V(Opr o, int value); /* 引数として値そのもの */
+extern int gencode_arg_V_ST(Opr o, int value, int ptr); 
+extern void list_code();
+extern void backpatch(int code_lineno);
+

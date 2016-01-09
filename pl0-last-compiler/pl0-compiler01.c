@@ -106,6 +106,7 @@ void parse_ConstDecl() {
 }
 
 void parse_ConstIdList() {
+  int ptr;
   char cur_const_id[MAX_ID_NAME];
   if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
 				   "定数名でない。");
@@ -117,12 +118,14 @@ void parse_ConstIdList() {
   if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_number,
 				       "数値でない。");
   /* 定数名の登録および値の設定 */
-  register_const_in_tbl(cur_const_id, t_num_value, line_number);
+  ptr = register_const_in_tbl(cur_const_id, t_num_value, line_number);
+  gen_code_arg_V_ST(str, t_num_value, ptr); /* 定数用初期コード生成 */
   nextToken = getToken();
   parse_ConstIdList_dash();
 }
 
 void parse_ConstIdList_dash() {
+  int ptr;
   char cur_const_id[MAX_ID_NAME];
   if (nextToken == T_COMMA) {
     nextToken = getToken();
@@ -136,7 +139,8 @@ void parse_ConstIdList_dash() {
     if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_number,
 					 "数値でない。");
     /* 定数名の登録および値の設定 */
-    register_const_in_tbl(cur_const_id, t_num_value, line_number);
+    ptr = register_const_in_tbl(cur_const_id, t_num_value, line_number);
+    gen_code_arg_V_ST(str, t_num_value, ptr); /* 定数用初期コード生成 */
     nextToken = getToken();
     parse_ConstIdList_dash();
   }
@@ -240,12 +244,13 @@ void parse_Statement() {
       pl0_error("意味", yytext, line_number,
 		 "変数/仮引数以外に代入している。");
     }
-    info_ref_symbol(ptr, line_number); /* 情報出力 */
     nextToken = getToken();
     if (nextToken != T_COLEQ) pl0_error("構文", yytext, line_number,
 					":=がない。");
     nextToken = getToken();
     parse_Expression();
+    /* 代入のコード生成 */
+    gen_code_arg_ST(str, ptr);
   } else if (nextToken == T_BEGIN) { /* begn ～ end */
     nextToken = getToken();
     parse_StatementList();
@@ -269,11 +274,14 @@ void parse_Statement() {
   } else if (nextToken == T_RETURN) { /* return */
     nextToken = getToken();
     parse_Expression();
+    /* ここで return のコード生成 */
   } else if (nextToken == T_WRITE) { /* write */
-    gen_code_no_arg(wrt);
     nextToken = getToken();
     parse_Expression();
+    /* write のコード生成 */
+    gen_code_no_arg(wrt);
   } else if (nextToken ==  T_WRITELN) { /* writeln */
+    /* writeln のコード生成 */
     gen_code_no_arg(wrl);
     nextToken = getToken();
   } else {
@@ -299,6 +307,7 @@ void parse_Condition() {
     nextToken = getToken();
     parse_Expression();
     /* ここで T_ODDの処理 */
+    gen_code_no_arg(odd);
   } else {
     parse_Expression();
     if (nextToken == T_EQ || nextToken == T_NOTEQ
@@ -311,21 +320,47 @@ void parse_Condition() {
     }
     nextToken = getToken();
     parse_Expression();
-    /* ここで operator 処理 */
+    /* ここで operator のコード生成 */
+    switch(operator) {
+    case T_EQ:
+      gen_code_no_arg(eq);
+      break;
+    case T_NOTEQ:
+      gen_code_no_arg(neq);
+      break;
+    case T_LT:
+      gen_code_no_arg(lt);
+      break;
+    case T_GT:
+      gen_code_no_arg(gt);
+      break;
+    case T_LE:
+      gen_code_no_arg(le);
+      break;
+    case T_GE:
+      gen_code_no_arg(ge);
+      break;
+    default:
+      break;
+    }
   }
 }
 
 void parse_Expression() {
   if (nextToken == T_PLUS) {
     nextToken = getToken();
+    gen_code_arg_V(lod, 0);
     parse_Term();
-    /* ここで 0 Term + をスタックにつむ */
+    /* ここで 0 Term + のコード生成 */
+    gen_code_no_arg(pls);
     parse_Expression_dash();
   } else if (nextToken == T_MINUS) {
     nextToken = getToken();
+    gen_code_arg_V(lod, 0);
     parse_Term();
-    /* ここで 0 Term - をスタックにつむ */
+    /* ここで 0 Term - のコード生成 */
     parse_Expression_dash();
+    gen_code_no_arg(min);
   } else {
     parse_Term();
     parse_Expression_dash();
@@ -336,13 +371,13 @@ void parse_Expression_dash() {
   if (nextToken == T_PLUS) {
     nextToken = getToken();
     parse_Term();
-    /* ここで + の処理 */
+    /* ここで + のコード生成 */
     gen_code_no_arg(pls);
     parse_Expression_dash();
   } else if (nextToken == T_MINUS) {
     nextToken = getToken();
     parse_Term();
-    /* ここで - の処理 */
+    /* ここで - のコード生成 */
     gen_code_no_arg(min);
     parse_Expression_dash();
   } else {
@@ -394,12 +429,14 @@ void parse_Factor() {
 	if (get_func_args(ptr) != args) pl0_error("意味", get_symbol_name(ptr),
 						  line_number,"引数の個数が違う");
       }
-    } else { /* 関数以外(定数/変数/仮引数)の場合 */
-      info_ref_symbol(ptr, line_number); /* 情報出力 */
+    } else {
+      /* 関数以外(定数/変数/仮引数)の場合のコード生成 */
+      gen_code_arg_ST(lod, ptr);
     }
     nextToken = getToken();
   } else if (nextToken == T_NUMBER) {
-    /* ここで数字の処理 */
+    /* 定数の場合のコード生成 */
+    gen_code_arg_V(lod, t_num_value);
     nextToken = getToken();
   } else if (nextToken == T_LPAR) {
     nextToken = getToken();

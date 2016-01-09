@@ -14,11 +14,12 @@ struct table_entry { /* 記号表に登録する要素 */
       int n_params; /* 関数の場合、仮引数の個数 */
       /* int address; 関数の場合、先頭アドレス */
     } f;
-    /* int address; 定数、変数、仮引数の場合、アドレス */
+    int address; /* 定数、変数、仮引数の場合格納アドレス */
   } u;
 };
 
 static struct table_entry symbol_table[MAX_TABLE_LEN]; /* 記号表 */
+static int heap_address = 800; /* 大域変数用ヒープアドレス保持 */
 static int table_ptr = 0 ; /* 記号表の現在位置を示すポインタ */
                            /* symbol_table[0]は番兵で使用   */
 static int cur_func_tptr;  /* 現在登録処理している関数の記号 */
@@ -42,7 +43,7 @@ int get_symbol_def_line_no(int ptr);
 int get_func_args(int ptr);
 void blk_level_up();
 void blk_level_down();
-
+int get_symbol_address(int ptr);
 
 /* 名前の二重登録のチェック(登録されていたら1) */
 int check_double_regist(char *id) {
@@ -68,6 +69,8 @@ int register_const_in_tbl(char *id, int value, int line_no) {
   symbol_table[table_ptr].type = const_id;
   symbol_table[table_ptr].line_no = line_no;
   symbol_table[table_ptr].u.value = value;
+  symbol_table[table_ptr].u.address = heap_address; /* 関数未対応 */
+  heap_address++;
   return table_ptr;
 }
 
@@ -77,6 +80,8 @@ int register_var_in_tbl(char *id, int line_no) {
   rgst_name(id, line_no);
   symbol_table[table_ptr].type = var_id;
   symbol_table[table_ptr].line_no = line_no;
+  symbol_table[table_ptr].u.address = heap_address; /* 関数未対応 */
+  heap_address++;
   return table_ptr;
 }
 
@@ -123,6 +128,7 @@ void blk_level_down() {
 
 /* 仮引数宣言部の最後で呼ばれる */
 int end_param() {
+  return 0;
 }
 
 /* 記号表検索 */
@@ -159,4 +165,12 @@ int get_func_args(int ptr) {
 	      "get_func_argがおかしい");
   }
   return symbol_table[ptr].u.f.n_params;
+}
+
+/* 記号表 ptr 位置のアドレスをを返す */
+int get_symbol_address(int ptr) { /* 関数の場合を未実装 */
+  if (symbol_table[ptr].type != func_id) {
+    return symbol_table[ptr].u.address;
+  }
+  return -1;
 }

@@ -1,0 +1,19 @@
+const n = 10;
+const m = 11;
+var counter, y;
+var p, q;
+
+begin
+    counter := 1; y := n;
+    while counter <= y do
+    begin
+        write counter * counter;
+        writeln;
+        counter := counter + 1;
+    end;
+    write m;
+    write p;
+    writeln;
+    write q;
+    writeln;
+end.

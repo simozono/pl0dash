@@ -9,7 +9,6 @@ struct table_entry { /* 記号表に登録する要素 */
   Type_Id type;            /* 種別 */
   int line_no; /* 宣言されたソースコード上の行数 */
   union {
-    int value; /* 定数の場合、値 */
     struct {
       int n_params; /* 関数の場合、仮引数の個数 */
       /* int address; 関数の場合、先頭アドレス */
@@ -68,7 +67,7 @@ int register_const_in_tbl(char *id, int value, int line_no) {
   rgst_name(id, line_no);
   symbol_table[table_ptr].type = const_id;
   symbol_table[table_ptr].line_no = line_no;
-  symbol_table[table_ptr].u.value = value;
+  /* symbol_table[table_ptr].u.value = value; */
   symbol_table[table_ptr].u.address = heap_address; /* 関数未対応 */
   heap_address++;
   return table_ptr;

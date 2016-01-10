@@ -12,7 +12,7 @@
 * [../pl0-parser/pl0-scanner.l](../pl0-parser/pl0-scanner.l) 字句解析用定義ファイル(lexファイル)
 
 #### コンパイラ本体
-* [pl0-compiler01.c](pl0-compiler.c) 関数未対応バージョンの完成版
+* [pl0-compiler01.c](pl0-compiler01.c) 関数未対応バージョンの完成版
 
 #### コンパイラテスト用PL/0'サンプルコード
 * [sample/test00.pl0](sample/test00.pl0)

@@ -230,7 +230,9 @@ void parse_FuncDeclIdList_dash() {
 
 void parse_Statement() {
   int ptr;  /* 現在の T_IDの記号表での位置  */
-  int backpatch_if ;
+  int backpatch_if ; /* IF文用バックパッチ */
+  int backpatch_while1 ; /* while文用バックパッチ1 */
+  int backpatch_while2 ; /* while文用バックパッチ2 */
   if (nextToken == T_ID) { /* 代入文 */
     /* T_ID が変数/仮引数かの判断 */
     ptr = search_tbl(yytext); /* 現在の T_ID を検索 */
@@ -257,7 +259,7 @@ void parse_Statement() {
   } else if (nextToken == T_IF) { /* if then */
     nextToken = getToken();
     parse_Condition();
-    backpatch_if = gencode_arg_V(jpc, 0); /* 飛び先を仮に0にしておく */
+    backpatch_if = gencode_arg_V(jpc, 0); /* 偽の場合の飛び先を仮に0とおく */
     if (nextToken != T_THEN) pl0_error("構文", yytext, line_number,
 				       "thenがない。");
     nextToken = getToken();
@@ -265,11 +267,15 @@ void parse_Statement() {
     backpatch(backpatch_if);  /* jpc 0 をここで backpatch */
   } else if (nextToken == T_WHILE)  { /* while do */
     nextToken = getToken();
+    backpatch_while1 = next_code(); /* while の条件先頭 */
     parse_Condition();
     if (nextToken != T_DO) pl0_error("構文", yytext, line_number,
 				     "doがない。");
+    backpatch_while2 = gencode_arg_V(jpc, 0); /* 偽の場合のとび先を仮に0とおく */
     nextToken = getToken();
     parse_Statement();
+    gencode_arg_V(jmp, backpatch_while1);
+    backpatch(backpatch_while2); /* jpc 0 をここで backpatch */
   } else if (nextToken == T_RETURN) { /* return */
     nextToken = getToken();
     parse_Expression();

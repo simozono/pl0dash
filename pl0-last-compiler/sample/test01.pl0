@@ -9,4 +9,6 @@ begin
         writeln;
         counter := counter + 1;
     end;
+    write 1;
+    writeln;
 end.

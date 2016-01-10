@@ -20,6 +20,7 @@ int gencode_no_arg(Opr o); /* 引数なし */
 int gencode_arg_ST(Opr o, int ptr); /* 引数として記号表番号 */
 int gencode_arg_v(Opr o, int value); /* 引数として値そのもの */
 int gencode_arg_v_ST(Opr o, int value, int ptr); /* 引数として値と記号表番号 */
+int next_code();
 void list_code();
 void backpatch(int code_lineno);
   
@@ -120,6 +121,9 @@ int gencode_arg_V(Opr o, int value) {
     cpt = add_code_val("LOAD A,%d", value);
     cpt = add_code("PUSH A");
     break;
+  case jmp:
+    cpt = add_code_addr("JMP ", value);
+    break;
   case jpc:
     cpt = add_code_addr("JPC ", value);
     break;
@@ -170,4 +174,8 @@ int add_code_addr(char *opr, int address) {
 
 void backpatch(int code_lineno) { /* 現在のコード行の次の行を入れる */
   code[code_lineno].address = code_ptr+1;
+}
+
+int next_code() {
+  return code_ptr+1;
 }

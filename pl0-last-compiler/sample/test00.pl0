@@ -1,0 +1,10 @@
+const n = 10;
+var x;
+
+begin
+  x := 1;
+  if x+3 > 10 then
+    write 1;
+  write 3;
+  writeln;
+end.

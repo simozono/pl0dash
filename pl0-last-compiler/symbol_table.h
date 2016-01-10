@@ -23,3 +23,5 @@ extern int get_func_args(int ptr);
 extern int get_symbol_def_line_no(int ptr);
 extern void blk_level_up();
 extern void blk_level_down();
+extern int get_symbol_address(int ptr);
+

@@ -1,4 +1,8 @@
-var x, y;
+const n = 10;
+var x;
+
 begin
-  x := -x;
+  x := n + 3;
+  write x * 2;
+  writeln;
 end.

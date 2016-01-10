@@ -1,14 +1,4 @@
-const n = 10;
-var counter, y;
-
 begin
-    counter := 1; y := n;
-    while counter <= y do
-    begin
-        write counter * counter;
-        writeln;
-        counter := counter + 1;
-    end;
-    write 1;
-    writeln;
+  write 1;
+  writeln;
 end.

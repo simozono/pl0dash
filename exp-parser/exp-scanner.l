@@ -6,11 +6,11 @@
   #else
   #include "../lexer/tokentable.h"
   #endif
-  int line_number = 1;
+  int line_no = 1;
 %}
 %%
 [[:blank:]]+		{}
-\n			{ line_number += 1; }
+\n			{ line_no += 1; }
 "("			{ return T_LPAR;    }
 ")"			{ return T_RPAR;    }
 "+"			{ return T_PLUS;    }

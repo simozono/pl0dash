@@ -15,7 +15,7 @@
 
 extern FILE *yyin;      /* 読み込むソースファイル */
 extern int yylex();     /* lex の字句解析 */
-extern int line_number; /* 行番号 */
+extern int line_no; /* 行番号 */
 extern int t_num_value; /* T_NUMBER の実際の値 */
 extern char *yytext;    /* lex よりレクシムが入る */
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   /* 構文解析スタート */
   nextToken = getToken();
   parse_Program();
-  if (nextToken != T_EOF) pl0_error("構文", "EOF", line_number,
+  if (nextToken != T_EOF) pl0_error("構文", "EOF", line_no,
 				    "ファイルの最後にきてしまいました。");
   fprintf(stderr, "解析終了。全てOK。\n");
 }
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 void parse_Program() {
   fprintf(stderr, "解析開始。\n");
   parse_Block();
-  if (nextToken != T_PERIOD) pl0_error("構文", yytext, line_number,
+  if (nextToken != T_PERIOD) pl0_error("構文", yytext, line_no,
 				       "ピリオドでない。");
   nextToken = getToken();
 }
@@ -107,24 +107,20 @@ void parse_ConstDecl() {
   /* T_CONST では何もしない。次のトークンを読む */
   nextToken = getToken();
   parse_ConstIdList();
-  if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_number,
-				      ";がない。");
+  if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_no, ";がない。");
   nextToken = getToken();
 }
 
 void parse_ConstIdList() {
   char cur_const_id[MAX_ID_NAME];
-  if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
-				   "定数名でない。");
+  if (nextToken != T_ID) pl0_error("構文", yytext, line_no, "定数名でない。");
   strcpy(cur_const_id, yytext);
   nextToken = getToken();
-  if (nextToken != T_EQ) pl0_error("構文", yytext, line_number,
-				   "=がない。");
+  if (nextToken != T_EQ) pl0_error("構文", yytext, line_no, "=がない。");
   nextToken = getToken();
-  if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_number,
-				       "数値でない。");
+  if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_no, "数値でない。");
   /* 定数名の登録および値の設定 */
-  register_const_in_tbl(cur_const_id, t_num_value, line_number);
+  register_const_in_tbl(cur_const_id, t_num_value, line_no);
   nextToken = getToken();
   parse_ConstIdList_dash();
 }
@@ -133,17 +129,15 @@ void parse_ConstIdList_dash() {
   char cur_const_id[MAX_ID_NAME];
   if (nextToken == T_COMMA) {
     nextToken = getToken();
-    if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
-				     "定数名でない。");
+    if (nextToken != T_ID) pl0_error("構文", yytext, line_no, "定数名でない。");
     strcpy(cur_const_id, yytext);
     nextToken = getToken();
-    if (nextToken != T_EQ) pl0_error("構文", yytext, line_number,
-				     "=がない。");
+    if (nextToken != T_EQ) pl0_error("構文", yytext, line_no, "=がない。");
     nextToken = getToken();
-    if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_number,
+    if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_no,
 					 "数値でない。");
     /* 定数名の登録および値の設定 */
-    register_const_in_tbl(cur_const_id, t_num_value, line_number);
+    register_const_in_tbl(cur_const_id, t_num_value, line_no);
     nextToken = getToken();
     parse_ConstIdList_dash();
   }
@@ -153,16 +147,14 @@ void parse_VarDecl() {
   /* T_VAR では何もしない。次のトークンを読む */
   nextToken = getToken();
   parse_VarIdList();
-  if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_number,
-				      ";がない。");
+  if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_no, ";がない。");
   nextToken = getToken();
 }
 
 void parse_VarIdList() {
-  if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
-				   "変数名でない。");
+  if (nextToken != T_ID) pl0_error("構文", yytext, line_no, "変数名でない。");
   /* 変数名の登録 */
-  register_var_in_tbl(yytext, line_number);
+  register_var_in_tbl(yytext, line_no);
   nextToken = getToken();
   parse_VarIdList_dash();
 }
@@ -170,10 +162,9 @@ void parse_VarIdList() {
 void parse_VarIdList_dash() {
   if (nextToken == T_COMMA) {
     nextToken = getToken();
-    if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
-				     "変数名でない。");
+    if (nextToken != T_ID) pl0_error("構文", yytext, line_no, "変数名でない。");
     /* 変数名の記号表への登録 */
-    register_var_in_tbl(yytext, line_number);
+    register_var_in_tbl(yytext, line_no);
     nextToken = getToken();
     parse_VarIdList_dash();
   }
@@ -182,22 +173,18 @@ void parse_VarIdList_dash() {
 void parse_FuncDecl() {
   /* T_FUNC では何もしない。次のトークンを読む */
   nextToken = getToken();
-  if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
-				   "関数名でない。");
+  if (nextToken != T_ID) pl0_error("構文", yytext, line_no, "関数名でない。");
   /* 関数名の記号表への登録 */
-  register_func_in_tbl(yytext, line_number);
+  register_func_in_tbl(yytext, line_no);
   nextToken = getToken();
-  if (nextToken != T_LPAR) pl0_error("構文", yytext, line_number,
-				     "(がない。");
+  if (nextToken != T_LPAR) pl0_error("構文", yytext, line_no, "(がない。");
   blk_level_up(); /* ブロックレベルを上げる */
   nextToken = getToken();
   parse_FuncDeclIdList();
-  if (nextToken != T_RPAR) pl0_error("構文", yytext, line_number,
-				     ")がない。");
+  if (nextToken != T_RPAR) pl0_error("構文", yytext, line_no, ")がない。");
   nextToken = getToken();
   parse_Block();
-  if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_number,
-				      ";がない。");
+  if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_no, ";がない。");
   blk_level_down(); /* ブロックレベルを下げる */
   nextToken = getToken();
 }
@@ -205,7 +192,7 @@ void parse_FuncDecl() {
 void parse_FuncDeclIdList() {
   if (nextToken == T_ID) {
     /* 仮引数の記号表への登録 */
-    register_param_in_tbl(yytext, line_number);
+    register_param_in_tbl(yytext, line_no);
     nextToken = getToken();
     parse_FuncDeclIdList_dash();
   }
@@ -214,10 +201,10 @@ void parse_FuncDeclIdList() {
 void parse_FuncDeclIdList_dash() {
   if (nextToken == T_COMMA) {
     nextToken = getToken();
-    if (nextToken != T_ID) pl0_error("構文", yytext, line_number,
+    if (nextToken != T_ID) pl0_error("構文", yytext, line_no,
 				     "仮引数名でない。");
     /* 仮引数の記号表への登録 */
-    register_param_in_tbl(yytext, line_number);
+    register_param_in_tbl(yytext, line_no);
     nextToken = getToken();
     parse_FuncDeclIdList_dash();
   }
@@ -229,38 +216,32 @@ void parse_Statement() {
     /* T_ID が変数/仮引数かの判断 */
     ptr = search_tbl(yytext); /* 現在の T_ID を検索 */
     if (ptr == 0) { /* なかった場合 */
-      pl0_error("意味", yytext, line_number,
-		 "定義されていない名前を使用している。");
+      pl0_error("意味", yytext, line_no, "定義されていない名前を使用している。");
     } else if ((get_symbol_type(ptr) != var_id) &&
 	       (get_symbol_type(ptr) != param_id)) { /* 変数/仮引数以外の場合 */
-      info_ref_symbol(ptr, line_number); /* 情報出力 */
-      pl0_error("意味", yytext, line_number,
-		 "変数/仮引数以外に代入している。");
+      info_ref_symbol(ptr, line_no); /* 情報出力 */
+      pl0_error("意味", yytext, line_no, "変数/仮引数以外に代入している。");
     }
-    info_ref_symbol(ptr, line_number); /* 情報出力 */
+    info_ref_symbol(ptr, line_no); /* 情報出力 */
     nextToken = getToken();
-    if (nextToken != T_COLEQ) pl0_error("構文", yytext, line_number,
-					":=がない。");
+    if (nextToken != T_COLEQ) pl0_error("構文", yytext, line_no, ":=がない。");
     nextToken = getToken();
     parse_Expression();
   } else if (nextToken == T_BEGIN) { /* begn ～ end */
     nextToken = getToken();
     parse_StatementList();
-    if (nextToken != T_END) pl0_error("構文", yytext, line_number,
-				      "endがない。");
+    if (nextToken != T_END) pl0_error("構文", yytext, line_no, "endがない。");
     nextToken = getToken();
   } else if (nextToken == T_IF) { /* if then */
     nextToken = getToken();
     parse_Condition();
-    if (nextToken != T_THEN) pl0_error("構文", yytext, line_number,
-				       "thenがない。");
+    if (nextToken != T_THEN) pl0_error("構文", yytext, line_no, "thenがない。");
     nextToken = getToken();
     parse_Statement();
   } else if (nextToken == T_WHILE)  { /* while do */
     nextToken = getToken();
     parse_Condition();
-    if (nextToken != T_DO) pl0_error("構文", yytext, line_number,
-				     "doがない。");
+    if (nextToken != T_DO) pl0_error("構文", yytext, line_no, "doがない。");
     nextToken = getToken();
     parse_Statement();
   } else if (nextToken == T_RETURN) { /* return */
@@ -301,8 +282,7 @@ void parse_Condition() {
         || nextToken == T_LE || nextToken == T_GE) {
       operator = nextToken;
     } else {
-      pl0_error("構文", yytext, line_number,
-		"比較演算子がない。");
+      pl0_error("構文", yytext, line_no, "比較演算子がない。");
     }
     nextToken = getToken();
     parse_Expression();
@@ -369,24 +349,21 @@ void parse_Factor() {
     /* T_ID が関数/変数/定数かの判断 */
     ptr = search_tbl(yytext); /* 現在の T_ID を検索 */
     if (ptr == 0) { /* なかった場合 */
-      pl0_error("意味", yytext, line_number,
-		"定義されていない。");
+      pl0_error("意味", yytext, line_no, "定義されていない。");
     } else if (get_symbol_type(ptr) == func_id) { /* 関数の場合 */
       nextToken = getToken();
-      if (nextToken != T_LPAR) pl0_error("構文", yytext, line_number,
-					 "(がない。");
+      if (nextToken != T_LPAR) pl0_error("構文", yytext, line_no, "(がない。");
       else {
         nextToken = getToken();
         args = parse_FuncArgList();
-        if (nextToken != T_RPAR) pl0_error("構文", yytext, line_number,
-					   ")がない。");
+        if (nextToken != T_RPAR) pl0_error("構文", yytext, line_no, ")がない。");
 	/* 関数のチェック */
-	info_ref_symbol(ptr, line_number); /* 情報出力 */
+	info_ref_symbol(ptr, line_no); /* 情報出力 */
 	if (get_func_args(ptr) != args) pl0_error("意味", get_symbol_name(ptr),
-						  line_number,"引数の個数が違う");
+						  line_no,"引数の個数が違う");
       }
     } else { /* 関数以外(定数/変数/仮引数)の場合 */
-      info_ref_symbol(ptr, line_number); /* 情報出力 */
+      info_ref_symbol(ptr, line_no); /* 情報出力 */
     }
     nextToken = getToken();
   } else if (nextToken == T_NUMBER) {
@@ -395,12 +372,10 @@ void parse_Factor() {
   } else if (nextToken == T_LPAR) {
     nextToken = getToken();
     parse_Expression();
-    if (nextToken != T_RPAR) pl0_error("構文", yytext, line_number,
-				       ")がない。");
+    if (nextToken != T_RPAR) pl0_error("構文", yytext, line_no, ")がない。");
     nextToken = getToken();
   } else {
-    pl0_error("構文", yytext, line_number,
-	      "数値/変数/定数/関数でない。");
+    pl0_error("構文", yytext, line_no, "数値/変数/定数/関数でない。");
   }
 }
 

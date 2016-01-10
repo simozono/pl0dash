@@ -123,6 +123,7 @@ void blk_level_down() {
 
 /* 仮引数宣言部の最後で呼ばれる */
 int end_param() {
+    return 0;
 }
 
 /* 記号表検索 */

@@ -14,7 +14,7 @@
 
 extern FILE *yyin;      /* 読み込むソースファイル */
 extern int yylex();     /* lex の字句解析 */
-extern int line_number; /* 行番号 */
+extern int line_no; /* 行番号 */
 extern char *yytext;    /* lex よりレクシムが入る */
 
 int checkTable(char *funcName);
@@ -89,7 +89,7 @@ int getToken(void) { /* トークンを取得する関数 */
 
 void pl0parse_error(char *error_message) { /* 構文エラーを出す関数 */
   printf("parse error near line %d(%s): %s\n",
-         line_number, yytext, error_message);
+         line_no, yytext, error_message);
   exit(EXIT_FAILURE);
 }
 

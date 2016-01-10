@@ -7,12 +7,12 @@
   #else
   #include "../lexer/tokentable.h"
   #endif
-  int line_number = 1;
+  int line_no = 1;
   int t_num_value;
 %}
 %%
 [[:blank:]]+		{}
-\n			{ line_number += 1; }
+\n			{ line_no += 1; }
 "const"			{ return T_CONST;   }
 "var"			{ return T_VAR;     }
 "function"		{ return T_FUNC;    }

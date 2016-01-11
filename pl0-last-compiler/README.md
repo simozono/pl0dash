@@ -52,11 +52,14 @@
     ````
     const n = 3;
     var x;
-
+    
     begin
       x := 9;
       if x > n then
+      begin
         x := 1;
+        write 3;
+      end;
       write x;
       writeln;
     end.

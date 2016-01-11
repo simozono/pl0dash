@@ -258,7 +258,7 @@ void parse_Statement() {
     backpatch_while2 = gencode_arg_V(jpc, 0); /* 偽の場合のとび先を仮に0とおく */
     nextToken = getToken();
     parse_Statement();
-    gencode_arg_V(jmp, backpatch_while1);
+    gencode_arg_V(jmp, backpatch_while1); /* JMP の飛び先を条件先頭へ */
     backpatch(backpatch_while2); /* jpc 0 をここで backpatch */
   } else if (nextToken == T_RETURN) { /* return */
     nextToken = getToken();

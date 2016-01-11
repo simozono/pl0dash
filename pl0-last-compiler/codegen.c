@@ -125,6 +125,7 @@ int gencode_arg_V(Opr o, int value) {
     cpt = add_code_addr("JMP ", value);
     break;
   case jpc:
+    cpt = add_code("POP C");
     cpt = add_code_addr("JPC ", value);
     break;
   default:

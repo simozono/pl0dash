@@ -24,3 +24,6 @@
 *  関数未対応バージョン
 *  関数対応バージョン
 
+### 実行環境
+- [ryo33/pl0dashvm](https://github.com/ryo33/pl0dashvm)
+- [NotFounds/pl0dash-run](https://github.com/NotFounds/pl0dash-run)

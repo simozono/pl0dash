@@ -25,5 +25,7 @@
 *  関数対応バージョン
 
 ### 実行環境
-- [ryo33/pl0dashvm](https://github.com/ryo33/pl0dashvm)
+授業で説明した簡易CPUの命令を解釈して実行します。
+- [ryo33/pl0dashvm](https://github.com/ryo33/pl0dashvm) (Go言語による実装 By [ryo33](https://github.com/ryo33/))
 - [NotFounds/pl0dash-run](https://github.com/NotFounds/pl0dash-run)
+ (C#言語による実装 By [NotFounds](https://github.com/NotFounds/))

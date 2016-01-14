@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 #include "../lexer/tokentable.h"
 #include "symbol_table.h"
 #include "../pl0-parser/misc.h"
@@ -59,15 +60,53 @@ int getToken(void) { /* トークンを取得する関数 */
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf (stderr, "引数が違います。\n");
+
+  int opts; /* オプション処理 */
+  int n_flag = 0; /* アセンブリ言語に番地をつけるかどうか */
+  int o_flag = 0; /* 出力ファイルがあるかどうか */
+  FILE *out_fp; /* 出力ファイル用ファイルポインタ */
+
+  char outfilename[FILENAME_MAX]; /* 出力ファイル名 */
+
+
+  while ((opts=getopt(argc, argv, "hno:")) != -1) {
+    switch(opts) {
+    case 'h':
+      fprintf(stderr, "%s [-h] [-n] [-o output_file] source_file\n",
+	      argv[0]);
+      exit(EXIT_SUCCESS);
+      break;
+    case 'n':
+      n_flag = 1;
+      break;
+    case 'o':
+      o_flag = 1;
+      strcpy(outfilename, optarg);
+      break;
+    case '?':
+      exit(EXIT_FAILURE);
+      break;
+    }
+  }
+
+  if (optind >= argc) {
+    fprintf (stderr, "ソースファイルを指定してください。\n");
     exit(EXIT_FAILURE);
   }
 
-  yyin = fopen(argv[1], "r");
+  yyin = fopen(argv[optind], "r");
   if (yyin  == NULL) {
-    fprintf (stderr, "%s というファイルがありません。\n", argv[1]);
+    fprintf (stderr, "%s というファイルがありません。\n", argv[optind]);
     exit(EXIT_FAILURE);
+  }
+
+  out_fp = stdout;
+  if (o_flag) {
+    if ((out_fp = fopen(outfilename, "w")) == NULL) {
+      fprintf(stderr, "%s という出力ファイルを作成できませんでした。\n",
+	      outfilename);
+      exit(EXIT_FAILURE);
+    }
   }
 
   /* 構文解析スタート */
@@ -77,7 +116,7 @@ int main(int argc, char *argv[]) {
 				    "ファイルの最後にきてしまいました。");
   gencode_no_arg(end);
   /* コード出力 */
-  list_code();
+  list_code(out_fp, n_flag);
 }
 
 void parse_Program() {

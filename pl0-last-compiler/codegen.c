@@ -21,7 +21,7 @@ int gencode_arg_ST(Opr o, int ptr); /* 引数として記号表番号 */
 int gencode_arg_v(Opr o, int value); /* 引数として値そのもの */
 int gencode_arg_v_ST(Opr o, int value, int ptr); /* 引数として値と記号表番号 */
 int next_code();
-void list_code();
+void list_code(FILE *fp, int n_flag);
 void backpatch(int code_lineno);
   
 /* 以下は本ファイルでのみ使用 */
@@ -29,13 +29,19 @@ int add_code(char *opline);
 int add_code_val(char *fmt, int value);
 int add_code_addr(char *opr, int address);
 
-void list_code(){ /* リストを出力 */
+void list_code(FILE *fp, int n_flag){ /* リストを出力 */
   int i = 1;
   while (i <= code_ptr) {
     if (code[i].address < 0) 
-      fprintf(stdout,"%4d %s\n", i, code[i].op_line);
+      if (!n_flag)
+	fprintf(fp,"%s\n", code[i].op_line);
+      else
+	fprintf(fp,"%4d %s\n", i, code[i].op_line);
     else
-      fprintf(stdout,"%4d %s%d\n", i, code[i].op_line,code[i].address);
+      if (!n_flag)
+	fprintf(fp,"%s%d\n", code[i].op_line,code[i].address);
+      else
+	fprintf(fp,"%4d %s%d\n", i, code[i].op_line,code[i].address);
     i++;
   }
 }

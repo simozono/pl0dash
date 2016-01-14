@@ -15,6 +15,6 @@ extern int gencode_arg_ST(Opr o, int ptr); /* 引数として名前表上の番�
 extern int gencode_arg_V(Opr o, int value); /* 引数として値そのもの */
 extern int gencode_arg_V_ST(Opr o, int value, int ptr); 
 extern int next_code();
-extern void list_code();
+extern void list_code(FILE *fp, int n_flag);
 extern void backpatch(int code_lineno);
 

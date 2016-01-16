@@ -18,8 +18,8 @@ static Asm_Code code[MAX_CODE];
 
 int gencode_no_arg(Opr o); /* 引数なし */
 int gencode_arg_ST(Opr o, int ptr); /* 引数として記号表番号 */
-int gencode_arg_v(Opr o, int value); /* 引数として値そのもの */
-int gencode_arg_v_ST(Opr o, int value, int ptr); /* 引数として値と記号表番号 */
+int gencode_arg_V(Opr o, int value); /* 引数として値そのもの */
+int gencode_arg_V_ST(Opr o, int value, int ptr); /* 引数として値と記号表番号 */
 int next_code();
 void list_code(FILE *fp, int n_flag);
 void backpatch(int code_lineno);
@@ -133,6 +133,10 @@ int gencode_arg_V(Opr o, int value) {
   case jpc:
     cpt = add_code("POP C");
     cpt = add_code_addr("JPC ", value);
+    break;
+  case call:
+    cpt = add_code_addr("CALL ", value);
+    cpt = add_code("PUSH C");
     break;
   default:
     break;

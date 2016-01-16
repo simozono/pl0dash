@@ -1,9 +1,8 @@
-/* PL/0'(最終版)用 LL(1)再帰下降型コンパイラ01
+/* PL/0'(最終版)用 LL(1)再帰下降型コンパイラ02
  *      2015年後期 鹿児島高専
  *      3年生 言語処理系 授業用
  * * PL/0'(最終版)の文法に従っている
  * * 構文解析/意味解析/コード生成を行っている
- * * 関数のコード生成には未対応
  */
 
 #include <stdio.h>
@@ -17,7 +16,7 @@
 
 extern FILE *yyin;      /* 読み込むソースファイル */
 extern int yylex();     /* lex の字句解析 */
-extern int line_no; /* 行番号 */
+extern int line_no;     /* 行番号 */
 extern int t_num_value; /* T_NUMBER の実際の値 */
 extern char *yytext;    /* lex よりレクシムが入る */
 
@@ -73,7 +72,7 @@ int main(int argc, char *argv[]) {
     switch(opts) {
     case 'h':
       fprintf(stderr, "%s [-h] [-n] [-o output_file] source_file\n",
-	      argv[0]);
+              argv[0]);
       exit(EXIT_SUCCESS);
       break;
     case 'n':
@@ -104,7 +103,7 @@ int main(int argc, char *argv[]) {
   if (o_flag) {
     if ((out_fp = fopen(outfilename, "w")) == NULL) {
       fprintf(stderr, "%s という出力ファイルを作成できませんでした。\n",
-	      outfilename);
+              outfilename);
       exit(EXIT_FAILURE);
     }
   }
@@ -113,7 +112,7 @@ int main(int argc, char *argv[]) {
   nextToken = getToken();
   parse_Program();
   if (nextToken != T_EOF) pl0_error("構文", "EOF", line_no,
-				    "ファイルの最後にきてしまいました。");
+                                    "ファイルの最後にきてしまいました。");
   gencode_no_arg(end);
   /* コード出力 */
   list_code(out_fp, n_flag);
@@ -122,7 +121,7 @@ int main(int argc, char *argv[]) {
 void parse_Program() {
   parse_Block();
   if (nextToken != T_PERIOD) pl0_error("構文", yytext, line_no,
-				       "ピリオドでない。");
+                                       "ピリオドでない。");
   nextToken = getToken();
 }
 
@@ -170,7 +169,7 @@ void parse_ConstIdList_dash() {
     if (nextToken != T_EQ) pl0_error("構文", yytext, line_no, "=がない。");
     nextToken = getToken();
     if (nextToken != T_NUMBER) pl0_error("構文", yytext, line_no,
-					 "数値でない。");
+                                         "数値でない。");
     /* 定数名の登録および値の設定 */
     ptr = register_const_in_tbl(cur_const_id, t_num_value, line_no);
     gencode_arg_V_ST(str, t_num_value, ptr); /* 定数用初期コード生成 */
@@ -215,18 +214,21 @@ void parse_FuncBlock() { /* PL/0' 最終版の文法に対応 */
 }
 
 void parse_FuncDecl() {
+  int func_ptr; /* この関数の記号表での位置 */
   if (nextToken != T_FUNC) return; /* T_FUNC 以外は終了 */
   /* T_FUNC では何もしない。次のトークンを読む */
   nextToken = getToken();
   if (nextToken != T_ID) pl0_error("構文", yytext, line_no, "関数名でない。");
   /* 関数名の記号表への登録 */
-  register_func_in_tbl(yytext, line_no);
+  func_ptr = register_func_in_tbl(yytext, line_no);
+  set_func_address(func_ptr, next_code());
   nextToken = getToken();
   if (nextToken != T_LPAR) pl0_error("構文", yytext, line_no, "(がない。");
   blk_level_up(); /* ブロックレベルを上げる */
   nextToken = getToken();
   parse_FuncDeclIdList();
   if (nextToken != T_RPAR) pl0_error("構文", yytext, line_no, ")がない。");
+  end_param(func_ptr);
   nextToken = getToken();
   parse_FuncBlock();
   if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_no, ";がない。");
@@ -247,7 +249,7 @@ void parse_FuncDeclIdList_dash() {
   if (nextToken == T_COMMA) {
     nextToken = getToken();
     if (nextToken != T_ID) pl0_error("構文", yytext, line_no,
-				     "仮引数名でない。");
+                                     "仮引数名でない。");
     register_param_in_tbl(yytext, line_no); /* 仮引数を記号表へ登録 */
     nextToken = getToken();
     parse_FuncDeclIdList_dash();
@@ -264,9 +266,9 @@ void parse_Statement() {
     ptr = search_tbl(yytext); /* 現在の T_ID を検索 */
     if (ptr == 0) { /* なかった場合 */
       pl0_error("意味", yytext, line_no,
-		"定義されていない名前を使用している。");
+                "定義されていない名前を使用している。");
     } else if ((get_symbol_type(ptr) != var_id) &&
-	       (get_symbol_type(ptr) != param_id)) { /* 変数/仮引数以外の場合 */
+               (get_symbol_type(ptr) != param_id)) { /* 変数/仮引数以外の場合 */
       pl0_error("意味", yytext, line_no, "変数/仮引数以外に代入している。");
     }
     nextToken = getToken();
@@ -293,7 +295,7 @@ void parse_Statement() {
     backpatch_while1 = next_code(); /* while の条件先頭 */
     parse_Condition();
     if (nextToken != T_DO) pl0_error("構文", yytext, line_no,
-				     "doがない。");
+                                     "doがない。");
     backpatch_while2 = gencode_arg_V(jpc, 0); /* 偽の場合のとび先を仮に0とおく */
     nextToken = getToken();
     parse_Statement();
@@ -441,22 +443,25 @@ void parse_Factor() {
     ptr = search_tbl(yytext); /* 現在の T_ID を検索 */
     if (ptr == 0) { /* なかった場合 */
       pl0_error("意味", yytext, line_no,
-		"定義されていない。");
+                "定義されていない。");
     } else if (get_symbol_type(ptr) == func_id) { /* 関数の場合 */
       nextToken = getToken();
       if (nextToken != T_LPAR) pl0_error("構文", yytext, line_no, "(がない。");
       else {
         nextToken = getToken();
-	f_args = parse_FuncArgList();
+        f_args = parse_FuncArgList();
         if (nextToken != T_RPAR) pl0_error("構文", yytext, line_no,
-					   ")がない。");
-	/* 関数のチェック */
-	info_ref_symbol(ptr, line_no); /* 情報出力 */
-	if (get_func_args(ptr) != f_args)
-	  pl0_error("意味", get_symbol_name(ptr), line_no, "引数の個数が違う");
+                                           ")がない。");
+        /* info_ref_symbol(ptr, line_no);  情報出力 */
+        if (get_func_args(ptr) != f_args)
+          pl0_error("意味", get_symbol_name(ptr), line_no, "引数の個数が違う");
+        /* 関数の呼出コード生成 */
+	gencode_arg_V(call, get_symbol_address(ptr));
+        
       }
     } else {
-      /* 関数以外(定数/変数/仮引数)の場合のコード生成 */
+      /* 関数以外(定数/変数/仮引数)の場合のコード生成 */ 
+      info_ref_symbol(ptr, line_no);
       gencode_arg_ST(lod, ptr);
     }
     nextToken = getToken();

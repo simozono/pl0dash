@@ -25,10 +25,11 @@ extern Type_Id get_symbol_type(int ptr);    /* 種別を返す */
 extern char *get_symbol_name(int ptr);      /* IDの名前を返す */
 extern int get_symbol_def_line_no(int ptr); /* IDが定義された行番号を返す */
 extern int get_func_args(int ptr);      /* ID(関数を仮定)の仮引数の個数を返す */
+extern int set_func_address(int ptr,
+			    int code_ptr); /* ID(関数)の開始アドレスを設定 */
 extern int get_symbol_address(int ptr); /* IDが使用するメモリ上のアドレスを返す */
 
 /* 関数対応処理 */
 extern void blk_level_up();   /* ブロックレベルを上げる */
 extern void blk_level_down(); /* ブロックレベルを下げる */
-extern int end_param();
-
+extern int end_param(int func_ptr); /* 関数内仮引数の名前表書き換え */

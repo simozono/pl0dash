@@ -6,8 +6,8 @@ typedef enum {
   pls, min, mul, divi, /* 四則演算 */
   odd, eq, neq, lt, gt, le, ge, /* 比較演算 */
   wrt, wrl, /* 表示関係 */
-  jmp, jpc,  /* ジャンプ */
-  end /* 終了 */
+  jmp, jpc, call,  /* ジャンプ */
+  ret, end /* 終了 */
 } Opr;
 
 extern int gencode_no_arg(Opr o);

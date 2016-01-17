@@ -27,6 +27,7 @@ void backpatch(int code_lineno);
 /* 以下は本ファイルでのみ使用 */
 int add_code(char *opline);
 int add_code_val(char *fmt, int value);
+int add_code_sharpval(char *fmt, int value);
 int add_code_addr(char *opr, int address);
 
 void list_code(FILE *fp, int n_flag){ /* リストを出力 */

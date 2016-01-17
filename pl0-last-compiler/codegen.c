@@ -1,4 +1,4 @@
-/* codegen.c */
+#/* codegen.c */
 #include <stdio.h>
 #include <stdlib.h>
 #include "codegen.h"
@@ -112,7 +112,7 @@ int gencode_arg_V_ST(Opr o, int value, int ptr) {
   switch(o) {
   case str:
     cpt = add_code_val("LOAD A,%d", value);
-    cpt = add_code_val("STORE A,#(%d)", get_symbol_address(ptr));
+    cpt = add_code_sharpval("STORE A,#(%s)", get_symbol_address(ptr));
     break;
   default:
     break;
@@ -150,10 +150,10 @@ int gencode_arg_ST(Opr o, int ptr) {
   switch(o) {
   case str:
     cpt = add_code("POP A");
-    cpt = add_code_val("STORE A,#(%d)", get_symbol_address(ptr));
+    cpt = add_code_sharpval("STORE A,#(%s)", get_symbol_address(ptr));
     break;
   case lod:
-    cpt = add_code_val("LOAD A,#(%d)", get_symbol_address(ptr));
+    cpt = add_code_sharpval("LOAD A,#(%s)", get_symbol_address(ptr));
     cpt = add_code("PUSH A");
     break;
   default:
@@ -172,6 +172,21 @@ int add_code(char *opline) {
 int add_code_val(char *fmt, int value) {
   code_ptr++;
   sprintf(code[code_ptr].op_line, fmt, value);
+  code[code_ptr].address = -1; /* address を使用しない */
+  return code_ptr;
+}
+
+int add_code_sharpval(char *fmt, int value) {
+  char str_val[15];
+  code_ptr++;
+
+  /* value はヒープアドレスかFPからの相対位置のはず */
+  if (value < 800) {
+    sprintf(str_val, "FP%+d", value);
+  } else {
+    sprintf(str_val, "%d", value);
+  }
+  sprintf(code[code_ptr].op_line, fmt, str_val);
   code[code_ptr].address = -1; /* address を使用しない */
   return code_ptr;
 }

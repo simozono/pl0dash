@@ -22,17 +22,16 @@ class Pl0dashvm
     end
   end
 
-  def execute(show = false)
+  def execute(show: false)
     @reg[:pc] = 1
     ret = -1
     begin
       item = @memory[@reg[:pc]]
       printf "%4d %s\n", @reg[:pc],
-        [item[0], item[1..2].join(",")].join(" ").strip if show == true
+        [item[0], item[1..2].join(",")].join(" ").strip if show
       ret = execute_line(@memory[@reg[:pc]])
-      if (show)
-        puts "    " + @reg.map{|reg,val|"%3s:%5d" % [reg,val]}.join(",")
-      end
+      show_reg if show 
+      show_stack if show
     end while ret > 0
   end
 
@@ -158,7 +157,7 @@ class Pl0dashvm
   end
 
   def init_reg_mem
-    @memory = Array.new(MAX_MEM+1)
+    @memory = Array.new(MAX_MEM+2)
     @memory[0] = "FirstLine"
     @reg = Hash.new
     @reg[:a] = 0
@@ -167,6 +166,17 @@ class Pl0dashvm
     @reg[:sp] = MAX_MEM+1
     @reg[:fp] = MAX_MEM+1
     @reg[:pc] = 0
+  end
+
+  def show_reg
+    puts "    " + @reg.map{|reg,val|"%3s:%5d" % [reg,val]}.join(",")
+  end
+
+  def show_stack
+    i = 970
+    @memory[971...-1].each_slice(5) do |row|
+      puts "   " + row.map{|val|i+=1;" %4d:%4d" % [i,val.to_i]}.join(",")
+    end
   end
 end
 
@@ -189,4 +199,4 @@ end
 
 vm = Pl0dashvm.new(lines)
 # vm.list_code_area
-vm.execute
+vm.execute show: false

@@ -1,3 +1,4 @@
+#! /usr/bin/env ruby 
 # -*- coding: utf-8 -*-
 class Pl0dashvm
   MAX_MEM = 1000

@@ -52,13 +52,31 @@ int gencode_no_arg(Opr o) {
     return add_code("PRINTLN");
   }
 
+  if (o == wrt) {
+    cpt = add_code("POP A");
+    cpt = add_code("PRINT A");
+    return cpt;
+  }
+
   if (o == end) {
     return add_code("END");
   }
 
-  if (o == wrt) {
-    add_code("POP A");
-    return add_code("PRINT A");
+  if (o == pushup) {
+    return add_code("PUSHUP");
+  }
+
+  if (o == enterf) {
+    cpt = add_code("PUSH FP");
+    cpt = add_code("LOAD FP,SP");
+    return cpt;
+  }
+
+  if (o == leavef) {
+    cpt = add_code("POP C");
+    cpt = add_code("LOAD SP,FP");
+    cpt = add_code("POP FP");
+    return cpt;
   }
 
   if (o == odd) {
@@ -137,6 +155,9 @@ int gencode_arg_V(Opr o, int value) {
   case call:
     cpt = add_code_addr("CALL ", value);
     cpt = add_code("PUSH C");
+    break;
+  case ret:
+    cpt = add_code_addr("RET ", value);
     break;
   default:
     break;

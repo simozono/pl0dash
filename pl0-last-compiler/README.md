@@ -5,14 +5,15 @@
 * [codegen.h](codegen.h) 上記ヘッダーファイル(主にextern宣言)
 * [symbol_table.c](symbol_table.c) 記号表関係関数群
 * [symbol_table.h](symbol_table.h) 上記ヘッダーファイル(主にextern宣言)
+* [misc.c](misc.c) エラー表示とかの関数群
+* [misc.h](misc.h) 上記ヘッダーファイル(主にextern宣言)
 
 #### 別ディレクトリにあるファイル
-* [../pl0-parser/misc.c](../pl0-parser/misc.c) エラー表示とかの関数群
-* [../pl0-parser/misc.h](../pl0-parser/misc.h) 上記ヘッダーファイル(主にextern宣言)
 * [../pl0-parser/pl0-scanner.l](../pl0-parser/pl0-scanner.l) 字句解析用定義ファイル(lexファイル)
 
 #### コンパイラ本体
 * [pl0-compiler01.c](pl0-compiler01.c) 関数未対応バージョンの完成版
+* [pl0-compiler02.c](pl0-compiler02.c) 関数対応バージョンの完成版
 
 #### コンパイラテスト用PL/0'サンプルコード
 * [sample/test00.pl0](sample/test00.pl0)
@@ -81,4 +82,3 @@
       write 1; writeln;
     end.
     ````
-

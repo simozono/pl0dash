@@ -1,4 +1,5 @@
 var x, y;
 begin
+  x := 1;
   x := -x;
 end.

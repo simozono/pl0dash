@@ -130,8 +130,7 @@ class Pl0dashvm
     when /^\#\(fp([\+|\-]\d+)\)$/ # #(FP(+|-)数字)のはず
       @memory[@reg[:fp]+$1.to_i] = value
     else
-      puts "ERROR"
-      exit 1;
+      abort "ERROR"
     end
   end
 
@@ -153,8 +152,7 @@ class Pl0dashvm
       # puts "#{@reg[:fp]+$1.to_i}"
       return @memory[@reg[:fp]+$1.to_i]
     else
-      puts "ERROR"
-      exit 1;
+      abort "ERROR"
     end
   end
 
@@ -171,13 +169,23 @@ class Pl0dashvm
   end
 end
 
+
+# アセンブリ言語ソースコードの読込
+#   引数があったらそれをファイル名としオープンする
+#   引数がなかったら標準入力から読み込む
+#
 if ARGV[0] == nil
-  puts "#{$0} asm_filename\n"
-  exit 1;
+  lines = $stdin.readlines
+else
+  begin
+    file = File.open(ARGV[0])
+    lines = file.readlines
+    file.close
+  rescue => err
+    abort err.message
+  end
 end
 
-file = File.open(ARGV[0])
-lines = file.readlines
 vm = Pl0dashvm.new(lines)
 # vm.list_code_area
 vm.execute

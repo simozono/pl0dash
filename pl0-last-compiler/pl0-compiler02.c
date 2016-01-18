@@ -242,11 +242,11 @@ void parse_FuncDecl() {
   parse_FuncBlock();
   if (nextToken != T_SEMIC) pl0_error("構文", yytext, line_no, ";がない。");
   /* 関数後処理 */
-  /* block に return がなかった場合の処理 はじめ*/
+  /* block に return がなかった場合の処理はじめ */
   gencode_arg_V(lod, 0);
   gencode_no_arg(leavef);
   gencode_arg_V(ret, get_func_args(func_ptr));
-  /* block に return がなかった場合の処理 おわり*/
+  /* block に return がなかった場合の処理 おわり */
   blk_level_down(); /* ブロックレベルを下げる */
   func_ptr = -1; /* 作業関数の初期化 */
   nextToken = getToken();

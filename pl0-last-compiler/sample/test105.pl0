@@ -1,0 +1,17 @@
+const n = 3;
+var x;
+function mul(x)
+  var ret;
+  begin
+    if x < 2 then
+    begin
+      return 1;
+    end;
+    ret := 2 * mul(x-1);
+    write ret; writeln;
+    return ret;
+  end;
+
+begin
+  x := mul(n);
+end.

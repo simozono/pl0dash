@@ -1,5 +1,7 @@
 #! /usr/bin/env ruby 
 # -*- coding: utf-8 -*-
+require 'optparse'
+
 class Pl0dashvm
   MAX_MEM = 1000
   HEAP_START = 800
@@ -30,7 +32,8 @@ class Pl0dashvm
       printf "%4d %s\n", @reg[:pc],
         [item[0], item[1..2].join(",")].join(" ").strip if show
       ret = execute_line(@memory[@reg[:pc]])
-      show_reg if show 
+      show_reg if show
+      show_heap if show
       show_stack if show
     end while ret > 0
   end
@@ -172,10 +175,17 @@ class Pl0dashvm
     puts "    " + @reg.map{|reg,val|"%3s:%5d" % [reg,val]}.join(",")
   end
 
+  def show_heap
+    i = 799
+    @memory[(i+1)...810].each_slice(5) do |row|
+      puts "   " + row.map{|val|i+=1;" %4d:%4s" % [i,val]}.join(",")
+    end
+  end
+
   def show_stack
-    i = 970
-    @memory[971...-1].each_slice(5) do |row|
-      puts "   " + row.map{|val|i+=1;" %4d:%4d" % [i,val.to_i]}.join(",")
+    i = ((@reg[:sp].to_f - 2) / 10).floor.*(10).to_i
+    @memory[(i+1)...-1].each_slice(5) do |row|
+      puts "   " + row.map{|val|i+=1;" %4d:%4s" % [i,val]}.join(",")
     end
   end
 end
@@ -185,6 +195,14 @@ end
 #   引数があったらそれをファイル名としオープンする
 #   引数がなかったら標準入力から読み込む
 #
+
+opt = OptionParser.new
+OPTS = Hash.new
+
+opt.on('-d'){|i| OPTS[:show] = i}
+
+opt.parse!(ARGV)
+
 if ARGV[0] == nil
   lines = $stdin.readlines
 else
@@ -199,4 +217,4 @@ end
 
 vm = Pl0dashvm.new(lines)
 # vm.list_code_area
-vm.execute show: false
+vm.execute OPTS

@@ -172,21 +172,29 @@ class Pl0dashvm
   end
 
   def show_reg
-    puts "    " + @reg.map{|reg,val|"%3s:%5d" % [reg,val]}.join(",")
+    puts "============"
+    puts "    Register"
+    puts "    " + @reg.map{|reg,val|"%3s:%4d" % [reg,val]}.join(" ")
   end
 
   def show_heap
     i = 799
+      puts "    Heap Area"
     @memory[(i+1)...810].each_slice(5) do |row|
-      puts "   " + row.map{|val|i+=1;" %4d:%4s" % [i,val]}.join(",")
+      puts "   " + row.map{|val|i+=1;" %4d:%4s" % [i,val]}.join(" ")
     end
   end
 
   def show_stack
     i = ((@reg[:sp].to_f - 2) / 10).floor.*(10).to_i
+      puts "    Stack Area"
     @memory[(i+1)...-1].each_slice(5) do |row|
-      puts "   " + row.map{|val|i+=1;" %4d:%4s" % [i,val]}.join(",")
+      puts "   " + row.map{|val|
+                     i+=1;
+                     " %4d:%4s" % [i,(i < @reg[:sp] ? nil : val)];
+                   }.join(" ")
     end
+    puts "============"
   end
 end
 
